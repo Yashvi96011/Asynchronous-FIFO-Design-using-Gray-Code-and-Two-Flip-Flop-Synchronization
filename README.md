@@ -23,28 +23,24 @@ This project implements an **Asynchronous FIFO (First-In First-Out)** memory usi
 
 ### `Architecture:`
 
-                 Write Clock Domain
-              -----------------------
-              |                     |
-Data In ----->| Write Pointer Logic |
-              | Binary → Gray Code  |
-              -----------------------
-                         |
-                         | Gray Pointer
-                         v
-                 Two-FF Synchronizer
-                         |
-                         v
-               Read Clock Domain
-
-              -----------------------
-              | Read Pointer Logic   |
-              | Binary → Gray Code   |
-              -----------------------
-                         |
-                         v
-
-                   FIFO Memory
+            Write Domain                         Read Domain
+─────────────────────               ─────────────────────
+  wclk, w_rst, w_en                   rclk, r_rst, r_en
+       │                                     │
+  ┌────▼────────┐                     ┌──────▼──────┐
+  │ wptr_handler│                     │ rdptr_handle│
+  │  b_wptr     │                     │  b_rptr     │
+  │  g_wptr ────┼──► two_ff_syn ─────►│  g_wptr_sync│
+  │  full  ◄────┼──── two_ff_syn ◄────┼─ g_rptr     │
+  └─────────────┘                     └─────────────┘
+       │                                     │
+       └──────────────┬──────────────────────┘
+                      │
+               ┌──────▼──────┐
+               │  fifo_mem   │
+               │  8 x 8-bit  │
+               │  SRAM array │
+               └─────────────┘
                    
 
  ### `Modules:`

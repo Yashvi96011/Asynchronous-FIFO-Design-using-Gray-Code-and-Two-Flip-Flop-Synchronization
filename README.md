@@ -20,29 +20,6 @@ This project implements an **Asynchronous FIFO (First-In First-Out)** memory usi
 * ✔ Self-checking testbench with different clock frequencies
 
 
-
-### `Architecture:`
-
-            Write Domain                         Read Domain
-─────────────────────               ─────────────────────
-  wclk, w_rst, w_en                   rclk, r_rst, r_en
-       │                                     │
-  ┌────▼────────┐                     ┌──────▼──────┐
-  │ wptr_handler│                     │ rdptr_handle│
-  │  b_wptr     │                     │  b_rptr     │
-  │  g_wptr ────┼──► two_ff_syn ─────►│  g_wptr_sync│
-  │  full  ◄────┼──── two_ff_syn ◄────┼─ g_rptr     │
-  └─────────────┘                     └─────────────┘
-       │                                     │
-       └──────────────┬──────────────────────┘
-                      │
-               ┌──────▼──────┐
-               │  fifo_mem   │
-               │  8 x 8-bit  │
-               │  SRAM array │
-               └─────────────┘
-                   
-
  ### `Modules:`
  
  ### 1. `two_ff_syn.v`
@@ -211,20 +188,6 @@ which means both read and write pointers point to the same location.
 * Metastability Reduction
 
 ---
-
-## Future Improvements
-
-* Parameterized pointer width
-* Almost Full and Almost Empty flags
-* Synchronous read memory
-* Assertions (SVA)
-* UVM verification environment
-* Functional coverage and constrained-random testing
-
----
-
-
-Verilog / VLSI Design Projects
 
 ---
 

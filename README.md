@@ -1,9 +1,9 @@
 # Asynchronous-FIFO-Design-using-Gray-Code-and-Two-Flip-Flop-Synchronization
 
-###`Overview:`
+### `Overview:`
 This project implements an **Asynchronous FIFO (First-In First-Out)** memory using Verilog. The design enables reliable data transfer between two independent clock domains by employing **Gray code pointers** and **two-stage synchronizers** to avoid metastability issues.
 
-###`The FIFO supports:`
+### `The FIFO supports:`
 * Independent read and write clocks
 * Full and Empty flag generation
 * Gray code pointer synchronization
@@ -11,7 +11,7 @@ This project implements an **Asynchronous FIFO (First-In First-Out)** memory usi
 * Parameterized FIFO memory
 
 
-###`Features:`
+### `Features:`
 * ✔ Asynchronous read and write clock domains
 * ✔ Binary and Gray code pointer implementation
 * ✔ Two flip-flop synchronizers for CDC
@@ -20,9 +20,36 @@ This project implements an **Asynchronous FIFO (First-In First-Out)** memory usi
 * ✔ Self-checking testbench with different clock frequencies
 
 
- ###`Modules:`
+
+### `Architecture:`
+
+                 Write Clock Domain
+              -----------------------
+              |                     |
+Data In ----->| Write Pointer Logic |
+              | Binary → Gray Code  |
+              -----------------------
+                         |
+                         | Gray Pointer
+                         v
+                 Two-FF Synchronizer
+                         |
+                         v
+               Read Clock Domain
+
+              -----------------------
+              | Read Pointer Logic   |
+              | Binary → Gray Code   |
+              -----------------------
+                         |
+                         v
+
+                   FIFO Memory
+                   
+
+ ### `Modules:`
  
- ###1. `two_ff_syn.v`
+ ### 1. `two_ff_syn.v`
 Implements a **two-stage synchronizer** to safely transfer Gray-coded pointers between clock domains.
 
 #### Purpose
@@ -205,6 +232,4 @@ Verilog / VLSI Design Projects
 
 ---
 
-:::
 
-This README is suitable for a resume project and GitHub portfolio, and presents the design in a professional VLSI industry style.

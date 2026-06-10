@@ -189,6 +189,14 @@ which means both read and write pointers point to the same location.
 
 ---
 
----
+### `File Structure:`
+async-fifo/
+│   ├── two_ff_syn.v        # Two-FF metastability synchronizer
+│   ├── wptr_handler.v      # Write pointer + full flag logic
+│   ├── rdptr_handle.v      # Read pointer + empty flag logic
+│   ├── fifo_mem.v          # Dual-port SRAM array
+│   └── fifotop.v           # Top-level integration
+│   └── top.v               # Testbench with write + read phases
+└── README.md
 
 

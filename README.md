@@ -1,38 +1,210 @@
 # Asynchronous-FIFO-Design-using-Gray-Code-and-Two-Flip-Flop-Synchronization
-A fully parameterized asynchronous FIFO (First-In, First-Out) buffer designed for safe data transfer across two independent, unrelated clock domains. Implements Gray-code pointer synchronization and two-stage flip-flop metastability resolution.
 
-Design Concepts:
+Overview:
+This project implements an **Asynchronous FIFO (First-In First-Out)** memory using Verilog. The design enables reliable data transfer between two independent clock domains by employing **Gray code pointers** and **two-stage synchronizers** to avoid metastability issues.
 
-1.Why Gray Code?
-Binary counters can flip multiple bits simultaneously (e.g., 0111 → 1000 flips 4 bits). If the receiving clock domain samples mid-transition, it latches a corrupt pointer value.
-Gray code guarantees exactly 1 bit changes per count. A metastable sample resolves to either the old or new pointer — both are valid consecutive values — so no data corruption occurs.
-Binary:  000 → 001 → 010 → 011 → 100  (can flip 3 bits at once)
-Gray:    000 → 001 → 011 → 010 → 110  (always 1 bit flip)
+The FIFO supports:
+* Independent read and write clocks
+* Full and Empty flag generation
+* Gray code pointer synchronization
+* Safe clock-domain crossing (CDC)
+* Parameterized FIFO memory
 
-2.Full Flag Logic:
-assign full_flag = (g_rptr_sync == {~gray_next[3:2], gray_next[1:0]});
-The FIFO is full when the write pointer has lapped the read pointer by exactly the FIFO depth. In 4-bit Gray code, this is detected by: top 2 bits inverted, lower bits equal.
 
-3.Empty Flag Logic:
-assign empty_flag = (gray_next == g_wptr_sync);
-The FIFO is empty when both Gray-coded pointers are equal — the read pointer has caught up with the write pointer.
+Features:
+* ✔ Asynchronous read and write clock domains
+* ✔ Binary and Gray code pointer implementation
+* ✔ Two flip-flop synchronizers for CDC
+* ✔ Full and Empty status detection
+* ✔ Parameterized memory depth and data width
+* ✔ Self-checking testbench with different clock frequencies
 
-4.Extra Pointer Bit:
-For depth = 8, addresses are 3 bits (ADDR_WIDTH = 3) but pointers are 4 bits (ADDR_WIDTH + 1).
-Without the extra MSB, wptr == rptr is ambiguous — it could mean empty (no wrapping) or full (wrapped once). The MSB distinguishes these two states.
 
-5.Two-FF Synchronizer:
-Source domain signal
-        │
-   ┌────▼────┐  rclk  ┌─────────┐  rclk
-   │  FF1   ├────────►│  FF2   ├──────► Synchronized output
-   └─────────┘        └─────────┘
-   (may go metastable)  (resolved)
-FF1 may go metastable but resolves within one clock period. FF2 samples the settled value. MTBF with this scheme at GHz-range clocks exceeds millions of years.
+ ##Modules:
+ 
+ 1. two_ff_syn.v
+Implements a **two-stage synchronizer** to safely transfer Gray-coded pointers between clock domains.
 
-Testbench Sequence:
-1.Initialize all signals, assert reset
-2.De-assert reset (w_rst=1, r_rst=1)
-3.Write phase — write 10 values; stops automatically when full asserted
-4.Read phase — read 10 values; stops automatically when empty asserted
-5.Monitor output via $monitor (time, enables, data, flags)
+#### Purpose
+
+* Prevent metastability.
+* Synchronize pointers crossing clock domains.
+
+
+
+### 2. `wptr_handler.v`
+
+Handles write-side operations.
+
+#### Functions
+
+* Binary write pointer increment.
+* Binary-to-Gray conversion.
+* Full flag generation.
+* Pointer update.
+
+
+### 3. `rdptr_handle.v`
+
+Handles read-side operations.
+
+#### Functions
+
+* Binary read pointer increment.
+* Binary-to-Gray conversion.
+* Empty flag generation.
+* Pointer update.
+
+
+
+### 4. `fifo_mem.v`
+
+Implements the storage array.
+
+#### Functions
+
+* Write data on `wclk`.
+* Provide data using read pointer address.
+
+
+
+### 5. `fifotop.v`
+
+Top-level module integrating:
+
+* Write pointer block
+* Read pointer block
+* Synchronizers
+* FIFO memory
+
+
+### 6. `top.v`
+
+Testbench used for simulation.
+
+#### Clock Frequencies
+
+| Clock                | Period |
+| -------------------- | ------ |
+| Write Clock (`wclk`) | 10 ns  |
+| Read Clock (`rclk`)  | 14 ns  |
+
+---
+
+## Working Principle
+
+### Write Operation
+
+When:
+
+```verilog
+w_en = 1
+full = 0
+```
+
+then:
+
+1. Binary write pointer increments.
+2. Converted to Gray code.
+3. Data is stored in FIFO memory.
+4. Gray pointer is synchronized to the read clock domain.
+
+---
+
+### Read Operation
+
+When:
+
+```verilog
+r_en = 1
+empty = 0
+```
+
+then:
+
+1. Binary read pointer increments.
+2. Converted to Gray code.
+3. Read pointer is synchronized into the write clock domain.
+4. Empty condition is checked.
+
+---
+
+## Gray Code Conversion
+
+### Binary → Gray
+
+```verilog
+gray = (binary >> 1) ^ binary;
+```
+
+Example:
+
+| Binary | Gray |
+| ------ | ---- |
+| 0000   | 0000 |
+| 0001   | 0001 |
+| 0010   | 0011 |
+| 0011   | 0010 |
+| 0100   | 0110 |
+
+Gray code changes only one bit at a time, making it ideal for clock-domain crossing.
+
+---
+
+## Full Condition
+
+FIFO becomes **FULL** when:
+
+```verilog
+g_rptr_sync == {~gray_next[3:2], gray_next[1:0]}
+```
+
+This indicates that the write pointer is one complete cycle ahead of the read pointer.
+
+---
+
+## Empty Condition
+
+FIFO becomes **EMPTY** when:
+
+```verilog
+gray_next == g_wptr_sync
+```
+
+which means both read and write pointers point to the same location.
+
+---
+
+
+
+## Concepts Used
+
+* Verilog HDL
+* Clock Domain Crossing (CDC)
+* Two-Flip-Flop Synchronizer
+* Gray Code Counters
+* FIFO Design
+* Sequential Logic
+* Metastability Reduction
+
+---
+
+## Future Improvements
+
+* Parameterized pointer width
+* Almost Full and Almost Empty flags
+* Synchronous read memory
+* Assertions (SVA)
+* UVM verification environment
+* Functional coverage and constrained-random testing
+
+---
+
+
+Verilog / VLSI Design Projects
+
+---
+
+:::
+
+This README is suitable for a resume project and GitHub portfolio, and presents the design in a professional VLSI industry style.

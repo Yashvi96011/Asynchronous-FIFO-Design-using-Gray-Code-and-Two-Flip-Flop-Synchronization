@@ -1,9 +1,9 @@
 # Asynchronous-FIFO-Design-using-Gray-Code-and-Two-Flip-Flop-Synchronization
 
-Overview:
+###`Overview:`
 This project implements an **Asynchronous FIFO (First-In First-Out)** memory using Verilog. The design enables reliable data transfer between two independent clock domains by employing **Gray code pointers** and **two-stage synchronizers** to avoid metastability issues.
 
-The FIFO supports:
+###`The FIFO supports:`
 * Independent read and write clocks
 * Full and Empty flag generation
 * Gray code pointer synchronization
@@ -11,7 +11,7 @@ The FIFO supports:
 * Parameterized FIFO memory
 
 
-Features:
+###`Features:`
 * ✔ Asynchronous read and write clock domains
 * ✔ Binary and Gray code pointer implementation
 * ✔ Two flip-flop synchronizers for CDC
@@ -20,9 +20,9 @@ Features:
 * ✔ Self-checking testbench with different clock frequencies
 
 
- ##Modules:
+ ###`Modules:`
  
- 1. two_ff_syn.v
+ ###1. `two_ff_syn.v`
 Implements a **two-stage synchronizer** to safely transfer Gray-coded pointers between clock domains.
 
 #### Purpose
